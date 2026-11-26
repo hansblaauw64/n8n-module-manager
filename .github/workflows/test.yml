@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Manifest and package.json have the same version
+        run: |
+          m=$(node -p "require('./extension/manifest.json').version")
+          p=$(node -p "require('./package.json').version")
+          echo "manifest $m, package.json $p"
+          test "$m" = "$p"
+      - name: The extension packs
+        run: npm run pack

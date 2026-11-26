@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modules</title>
+  <link rel="stylesheet" href="../../brand/brand.css">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header class="topbar">
+    <img id="logo" src="../../brand/logo.png" alt="">
+    <h1 id="title">n8n Modules</h1>
+    <span id="env" class="envbadge" hidden></span>
+    <button id="restore" title="Herstel uit snapshot-bestand" data-i18n-title="html.rollbackTitle">Rollback</button>
+    <button id="settings" title="Instellingen" data-i18n-title="settings" data-i18n-aria-label="settings">⚙</button>
+  </header>
+  <div class="wrap">
+    <div id="viewtabs" class="viewtabs" role="tablist" aria-label="Weergave" data-i18n-aria-label="html.viewTabs" hidden>
+      <button type="button" id="tabWorkflow" role="tab" data-i18n="html.tabWorkflow">Deze workflow</button>
+      <button type="button" id="tabOverview" role="tab" data-i18n="html.tabOverview">Alle modules</button>
+    </div>
+    <p class="intro" data-i18n-html="html.intro">Workflows met een tag <code>mod:&lt;naam&gt;</code> staan samen in één module. Met de schakelaar zet je een hele module of één workflow aan of uit, in de juiste volgorde van afhankelijkheden. Je ziet eerst een plan om te bevestigen, en bij een hele module ook een snapshot om op terug te vallen.</p>
+    <input type="file" id="file" accept="application/json" hidden>
+    <div class="bar"><input id="search" type="search" placeholder="Zoek in modules, workflows en nodes" data-i18n-placeholder="html.search"></div>
+    <div class="statusrow">
+      <span id="status" class="muted" role="status"></span>
+      <span class="actions">
+        <button id="addModule" type="button" class="primary" title="Nieuwe lege module aanmaken" data-i18n-title="html.addModuleTitle">+ Module</button>
+        <button id="collapseAll" type="button" hidden data-i18n="collapseAll">Alles inklappen</button>
+        <button id="reload" title="Workflows opnieuw laden uit n8n" data-i18n="html.reload" data-i18n-title="html.reloadTitle">↻ Vernieuwen</button>
+      </span>
+    </div>
+    <section id="agenda" class="agenda" aria-label="Dagplanning" data-i18n-aria-label="html.agenda" hidden></section>
+    <div id="content"></div>
+    <section id="wfview" aria-label="Deze workflow" data-i18n-aria-label="html.wfview" hidden></section>
+  </div>
+  <footer id="tips" class="tips" hidden>
+    <div class="tip-head">
+      <span class="tip-label">Tip</span>
+      <span class="tip-controls">
+        <span class="tip-nav" hidden>
+          <button type="button" class="tip-prev" title="Vorige tip" aria-label="Vorige tip" data-i18n-title="html.prevTip" data-i18n-aria-label="html.prevTip">‹</button>
+          <span class="tip-count"></span>
+          <button type="button" class="tip-next" title="Volgende tip" aria-label="Volgende tip" data-i18n-title="html.nextTip" data-i18n-aria-label="html.nextTip">›</button>
+        </span>
+        <button type="button" class="tip-toggle" aria-expanded="true">▾ Verberg</button>
+      </span>
+    </div>
+    <div class="tip-fallback"></div>
+    <div class="tip-body" hidden>
+      <a class="tip-title" target="_blank" rel="noopener noreferrer"></a>
+      <p class="tip-desc"></p>
+    </div>
+  </footer>
+  <dialog id="dlg"></dialog>
+  <script type="module" src="panel.js"></script>
+</body>
+</html>

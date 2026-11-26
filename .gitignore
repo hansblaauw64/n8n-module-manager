@@ -1,0 +1,6 @@
+.env
+node_modules/
+docs/findings-raw.json
+demo/out/
+.harness/
+dist/

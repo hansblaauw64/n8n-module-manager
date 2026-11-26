@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- things.io Modules: the things.io mark (two rings joined by an L) with the letter M in the free top-right corner.
+       White tile so the dark line and letter stay visible on a dark toolbar.
+       For another extension: keep the tile and the mark, change the letter. -->
+  <rect width="512" height="512" rx="104" fill="#ffffff"/>
+  <g transform="translate(40 40) scale(0.84)">
+    <!-- L-shaped connector (drawn first, the rings cover its ends) -->
+    <path d="M112 112 V400 H400" fill="none" stroke="#1a2a3a" stroke-width="48" stroke-linejoin="miter"/>
+    <!-- rings -->
+    <circle cx="112" cy="112" r="96" fill="#1190cb"/>
+    <circle cx="112" cy="112" r="48" fill="#ffffff"/>
+    <circle cx="400" cy="400" r="96" fill="#1190cb"/>
+    <circle cx="400" cy="400" r="48" fill="#ffffff"/>
+    <!-- letter M -->
+    <polygon fill="#1a2a3a" points="262,236 262,40 314,40 362,124 410,40 462,40 462,236 414,236 414,124 380,184 344,184 310,124 310,236"/>
+  </g>
+</svg>

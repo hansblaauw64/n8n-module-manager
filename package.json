@@ -1,0 +1,19 @@
+{
+  "name": "n8n-module-manager",
+  "version": "0.3.1",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "spike": "node --env-file=.env spike/spike.mjs",
+    "demo": "node demo/record.mjs",
+    "pack": "node scripts/pack.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.65.1"
+  }
+}

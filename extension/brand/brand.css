@@ -1,0 +1,13 @@
+/* Brand colors. A fork changes these values; panel.css only uses the variables.
+   Loaded before panel.css by panel.html and options.html. */
+:root {
+  --color-brand: #1190cb;        /* buttons, links, switches, environment labels */
+  --color-brand-dark: #0d73a3;   /* hover */
+  --color-brand-light: #4dabd7;
+  --color-brand-pale: #e8f5fb;   /* light backgrounds */
+  --color-brand-ring: rgba(17, 144, 203, 0.15); /* focus ring */
+  --color-dark: #1a2a3a;         /* top bar */
+  --color-dark-medium: #2d3e50;
+  --shadow-sm: 0 1px 3px rgba(17, 144, 203, 0.08);
+  --shadow-md: 0 4px 12px rgba(17, 144, 203, 0.12);
+}
