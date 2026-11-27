@@ -6,6 +6,8 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-27
+
 ### Added
 - `dist/` is now in the repository, with the zip of the current version (`npm run pack` removes older zips there). It holds only the extension's files and the LICENSE; checked for keys and instance details.
 - The executions of a workflow get a chart at the top, like the day agenda: bars per hour of the day showing when the loaded executions started, with failed ones in red. Click a bar to show only that hour; "Show all hours" clears it. It covers what is loaded (20 at a time, more with **Meer laden**).
@@ -86,7 +88,8 @@ First version:
 - Multiple instances with environment labels and an extra confirmation step for Productie.
 - https-only instances, a bundled font, and a tips footer from an RSS feed.
 
-[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/hansblaauw64/n8n-module-manager/releases/tag/v0.3.1
