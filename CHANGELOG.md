@@ -6,6 +6,8 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-27
+
 ### Added
 - Delete a workflow from the panel: a bin icon on each workflow row. The confirmation says plainly that n8n deletes at once and for good (no archive, no Rollback), warns when the workflow is on or called by others, offers a JSON copy to download first, and only enables the button after you type the exact name. Uses `DELETE /workflows/{id}`, tested in `docs/findings.md`.
 - A test that fails when a key in `messages.js` is defined twice (the later one silently wins).
@@ -80,6 +82,7 @@ First version:
 - Multiple instances with environment labels and an extra confirmation step for Productie.
 - https-only instances, a bundled font, and a tips footer from an RSS feed.
 
-[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/hansblaauw64/n8n-module-manager/releases/tag/v0.3.1
