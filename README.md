@@ -132,6 +132,13 @@ Above the cards is a collapsible section **Dagplanning** (day agenda). It lists 
 - On an error, execution stops at the first failed step. Earlier steps have been carried out.
 - After execution, the panel reloads the open n8n tabs of the changed workflows and the workflow list, so you see the new state right away. You can switch this off in the confirmation dialog. Note: reloading loses unsaved changes in an open editor.
 
+## Deleting a workflow
+- The bin icon at the end of a workflow row deletes that workflow from n8n.
+- n8n's API deletes **at once and for good**: there is no archive step like in the n8n editor, and Rollback or a snapshot can't bring it back. The confirmation says so.
+- It also warns when the workflow is on (its triggers stop) or is called by other workflows (they will fail at that step).
+- **Download a copy first (JSON)** saves the workflow as n8n returned it, so you can import it again in n8n.
+- **Delete permanently** only works after you type the workflow's exact name, on every instance.
+
 ## Managing modules
 - **+ Module:** creates an empty module (the tag `mod:<name>` in n8n). A name that already exists is refused.
 - **Drag:** drag a workflow by its handle (⠿) to another module card, then confirm. Drag it to **Zonder module** to unlink it. The workflow moves, so it ends up in one module. Its other tags stay.
@@ -196,6 +203,7 @@ This isn't shared between computers and isn't stored in n8n. One preference is i
 ## API calls used
 - `GET /workflows`
 - `POST /workflows/{id}/activate` and `/deactivate`
+- `DELETE /workflows/{id}`: deletes permanently, only after the confirmation with the typed name
 - `GET /executions?workflowId=…&limit=5` (last run in the overview) and `GET /executions?workflowId=…&limit=20&cursor=…` (the executions of the open workflow)
 - `GET /executions/{id}?includeData=true`: only when you open the error of one failed execution
 - `GET /tags`, `POST /tags`, `DELETE /tags/{id}`

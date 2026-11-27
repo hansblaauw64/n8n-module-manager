@@ -623,3 +623,12 @@ test('checkSnapshotInstance: only a snapshot of this instance', async () => {
   assert.throws(() => checkSnapshotInstance({ ...snap, instance: undefined }, 'https://n8n.example.com'));
   assert.throws(() => checkSnapshotInstance({ ...snap, instance: 'https://n8n.example.com/sub' }, 'https://n8n.example.com'));
 });
+
+test('messages: no key is defined twice (a later duplicate silently wins)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const src = readFileSync(new URL('../extension/src/lib/messages.js', import.meta.url), 'utf8');
+  const keys = [...src.matchAll(/^ {2}'?([\w.]+)'?:/gm)].map((m) => m[1]);
+  const dupes = keys.filter((k, i) => keys.indexOf(k) !== i);
+  assert.deepEqual(dupes, []);
+  assert.ok(keys.length > 100);
+});

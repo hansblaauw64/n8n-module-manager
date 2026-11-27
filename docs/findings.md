@@ -43,6 +43,21 @@ Switching on a workflow that calls an unpublished sub-workflow (Execute Workflow
 
 So a publish plan now also switches on the unpublished sub-workflows the workflow calls, directly or indirectly, sub-workflows first (`planAction` in `lib/deps.js`). Before, the plan only warned about them. Not tested: whether n8n also refuses to *unpublish* a sub-workflow while a published workflow calls it; the panel still only warns about that.
 
+## Deleting a workflow via the API (tested 2026-11-27, test instance)
+In the n8n editor a workflow must be archived before it can be deleted. The public API does not do that: it deletes right away.
+
+Tested on a throwaway workflow the test created itself (only a manual trigger, never active):
+
+| Step | Result |
+|---|---|
+| `POST /workflows` | 200, `isArchived: false` |
+| `DELETE /workflows/{id}` | 200, returns the workflow as it was (`isArchived: false`) |
+| `GET /workflows/{id}` afterwards | 404 |
+| In `GET /workflows` afterwards | no |
+| `DELETE` again | 404 |
+
+So `DELETE` is permanent and can't be undone. Not tested: deleting an **active** workflow, and whether the editor's archive view shows anything (the API returns 404).
+
 ## Changes based on the spike
 - `deps.js`: expression targets (`=...`) are ignored.
 - Panel: archived workflows (`isArchived`) are hidden.

@@ -301,7 +301,11 @@ function render() {
         if (to) moveWorkflow(w.id, null, to, { ask: false });
       };
     }
-    const li = el('li', {}, wfHandle, link, ...(assign ? [assign] : []), sw);
+    const del = el('button', { className: 'wf-del', type: 'button', title: t('deleteWf') });
+    del.innerHTML = TRASH_ICON;
+    del.setAttribute('aria-label', t('deleteWfAria', { name: w.name }));
+    del.onclick = () => deleteDialog(w);
+    const li = el('li', {}, wfHandle, link, ...(assign ? [assign] : []), sw, del);
     li.dataset.wf = String(w.id);
     const wrap = el('div', {}, li);
     if (moduleNames(w).length) {
@@ -689,6 +693,7 @@ function enableDragging(root) {
 }
 
 const COPY_ICON = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 3.5v-.5A1.5 1.5 0 0 0 9 1.5H3A1.5 1.5 0 0 0 1.5 3v6A1.5 1.5 0 0 0 3 10.5h.5"/></svg>';
+const TRASH_ICON = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4h11M6.5 4V2.5h3V4M4 4l.7 9.2a1 1 0 0 0 1 .8h4.6a1 1 0 0 0 1-.8L12 4M6.8 6.8v4.4M9.2 6.8v4.4"/></svg>';
 const CHECK_ICON = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 4.8"/></svg>';
 
 async function copyText(text) {
@@ -806,6 +811,70 @@ function reviewModule(m, dir) {
     note: t('noteModuleOn'),
     onStepDone: (s) => unremember(m.name, s.id),
   });
+}
+
+/**
+ * Delete one workflow. n8n's API deletes at once and for good (no archive), so: say so plainly, offer a copy of the
+ * workflow to download first, and only enable the button once the workflow's exact name has been typed.
+ */
+function deleteDialog(w) {
+  if (state.busy) return;
+  const dlg = $('dlg');
+  dlg.textContent = '';
+  const byId = new Map(state.workflows.map((x) => [String(x.id), x]));
+  const callers = [...(state.graph.calledBy.get(String(w.id)) || [])].map((id) => byId.get(id)?.name).filter(Boolean);
+  const env = envInfo(state.instance.env);
+  const go = el('button', { className: 'danger-solid', textContent: t('deleteWfConfirm'), disabled: true });
+  const typed = el('input', { id: 'deleteName', autocomplete: 'off', spellcheck: false, placeholder: w.name });
+  typed.oninput = () => { go.disabled = typed.value.trim() !== w.name.trim(); };
+  const copyBtn = el('button', {
+    textContent: t('deleteCopy'),
+    onclick: () => {
+      const safe = w.name.replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'workflow';
+      download(`n8n-workflow-${safe}-${w.id}.json`, w);
+      copyBtn.textContent = t('deleteCopied');
+    },
+  });
+  const out = el('p', { role: 'status' });
+  const cancel = el('button', { textContent: t('cancel'), onclick: () => dlg.close() });
+  go.onclick = async () => {
+    state.busy = true;
+    go.disabled = true;
+    typed.disabled = true;
+    out.className = 'muted';
+    out.textContent = t('deleting');
+    try {
+      await state.client.deleteWorkflow(w.id);
+    } catch (e) {
+      state.busy = false;
+      typed.disabled = false;
+      go.disabled = typed.value.trim() !== w.name.trim();
+      out.className = 'err';
+      out.textContent = t('deleteFailed', { msg: e.message });
+      return;
+    }
+    state.busy = false;
+    try { await forgetEverywhere(w.id); } catch (e) { console.warn('updating module memory failed:', e?.message); }
+    let refresh = true;
+    try { refresh = localStorage.getItem('refreshTabs') !== '0'; } catch { /* storage unavailable */ }
+    if (refresh) await refreshN8nTabs([String(w.id)]);
+    dlg.close();
+    await load();
+    setStatus(t('deleted', { name: w.name }), 'ok');
+  };
+  dlg.append(
+    el('h3', { textContent: t('deleteTitle', { name: w.name }) }),
+    el('p', { className: 'deletewarn', textContent: t('deleteWarn') }),
+    ...(w.active ? [el('p', { className: 'warnline', textContent: '⚠ ' + t('deleteActive') })] : []),
+    ...(callers.length ? [el('p', { className: 'warnline', textContent: '⚠ ' + t('deleteCalledBy', { list: callers.join(', ') }) })] : []),
+    el('p', { className: 'muted', textContent: t('deleteInstance', { name: state.instance.name, env: env.color ? ` (${env.label})` : '' }) }),
+    el('div', { className: 'prodconfirm' },
+      el('label', { htmlFor: 'deleteName' }, t('deleteTypeBefore'), el('code', { textContent: w.name }), t('deleteTypeAfter')),
+      typed),
+    out,
+    el('p', {}, copyBtn, ' ', go, ' ', cancel));
+  dlg.showModal();
+  cancel.focus();
 }
 
 function download(name, data) {

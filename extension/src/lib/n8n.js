@@ -103,6 +103,8 @@ export function createClient({ url, key }, { fetchImpl = fetch, sleep = (ms) => 
       await request('/workflows?limit=1');
       return true;
     },
+    /** Deletes a workflow permanently: no archive, can't be undone (docs/findings.md). */
+    deleteWorkflow: (id) => request(`/workflows/${encodeURIComponent(id)}`, { method: 'DELETE' }),
     publish: (id) => request(`/workflows/${encodeURIComponent(id)}/activate`, { method: 'POST' }),
     unpublish: (id) => request(`/workflows/${encodeURIComponent(id)}/deactivate`, { method: 'POST' }),
   };

@@ -55,6 +55,12 @@ Labels are quoted in Dutch (the default on a Dutch Chrome), with the English lab
 - [ ] Drag module cards, and move them with the arrow keys. The order is kept after ↻ and after closing the panel.
 - [ ] Collapse and expand, also **Alles inklappen** (Collapse all); this is remembered.
 
+## Deleting (test instance, throwaway workflow only)
+- [ ] The bin icon opens the confirmation: permanent, no archive. "Delete permanently" stays disabled until the exact name is typed.
+- [ ] A workflow that is on, or is called by another workflow, shows a warning for that.
+- [ ] "Download a copy first" saves a JSON file that n8n can import.
+- [ ] Cancel sends nothing. After confirming, the workflow is gone from the panel and from n8n.
+
 ## This workflow (executions)
 - [ ] Open a workflow in n8n: the panel shows **Deze workflow** with the right name, Aan/Uit and module, and the executions match the list in n8n (Executions tab of the workflow).
 - [ ] A failed execution is red; **Mislukt** shows only the failed ones; **Alle** shows everything again.
