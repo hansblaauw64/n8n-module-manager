@@ -6,6 +6,8 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-27
+
 ### Fixed
 - Switching on a workflow whose sub-workflow was off failed: n8n refuses with 400 "Please publish all referenced sub-workflows first". The plan now switches those sub-workflows on first (also indirectly called ones), with a note per sub-workflow; the snapshot includes them.
 - When the first step of a plan failed, the message said "the earlier steps were carried out". It now says nothing was changed.
@@ -74,5 +76,6 @@ First version:
 - Multiple instances with environment labels and an extra confirmation step for Productie.
 - https-only instances, a bundled font, and a tips footer from an RSS feed.
 
-[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/hansblaauw64/n8n-module-manager/releases/tag/v0.3.1
