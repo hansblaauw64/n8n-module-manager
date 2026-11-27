@@ -36,6 +36,13 @@ Instance: n8n.example.com (176 workflows). First read-only calls. Later, with ap
 
 The panel shows `message`, `description`, `httpCode`, the node (from `error.node`, else `lastNodeExecuted`) and the stack. It never shows `context`: `context.request` can contain request headers, which may hold credentials. It only fetches the data when you open the error of one execution, and keeps nothing else of it.
 
+## Publishing a workflow whose sub-workflow is off (seen 2026-11-27, acceptance instance)
+Switching on a workflow that calls an unpublished sub-workflow (Execute Workflow node) fails:
+
+`POST /workflows/{id}/activate` → **400** `Cannot publish workflow: Node "…" references workflow <id> ("…") which is not published. Please publish all referenced sub-workflows first.`
+
+So a publish plan now also switches on the unpublished sub-workflows the workflow calls, directly or indirectly, sub-workflows first (`planAction` in `lib/deps.js`). Before, the plan only warned about them. Not tested: whether n8n also refuses to *unpublish* a sub-workflow while a published workflow calls it; the panel still only warns about that.
+
 ## Changes based on the spike
 - `deps.js`: expression targets (`=...`) are ignored.
 - Panel: archived workflows (`isArchived`) are hidden.

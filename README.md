@@ -114,6 +114,7 @@ Above the cards is a collapsible section **Dagplanning** (day agenda). It lists 
 
 ## Switching on and off
 - **One workflow:** the switch first asks for confirmation with the plan (and any warnings). A snapshot is optional.
+- **Sub-workflows switch on along:** n8n won't publish a workflow that calls an unpublished sub-workflow. So switching a workflow (or a module) on also switches on the sub-workflows it calls that are off, first, with a note in the plan. A sub-workflow with only a manual trigger can't be published; the plan warns about it.
 - **A module:**
   - **Off:** every workflow that is on is switched off, callers first. The panel remembers which ones.
   - **On:** only the remembered workflows are switched back on, subworkflows first. Workflows that were already off stay off.

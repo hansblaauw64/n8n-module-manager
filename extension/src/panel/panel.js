@@ -825,7 +825,9 @@ function showPlan(title, plan, scopeIds, { snapshotOptional = false, onStepDone,
     return dlg.showModal();
   }
   const snapshotName = () => `n8n-snapshot-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-  const snap = makeSnapshot(state.instance.url, state.workflows.filter((w) => !scopeIds || scopeIds.includes(w.id)));
+  // The snapshot covers the workflows in scope plus every workflow the plan changes (e.g. sub-workflows it switches on).
+  const inSnapshot = scopeIds ? new Set([...scopeIds, ...plan.steps.map((s) => s.id)].map(String)) : null;
+  const snap = makeSnapshot(state.instance.url, state.workflows.filter((w) => !inSnapshot || inSnapshot.has(String(w.id))));
   const items = plan.steps.map((s) => el('li', { textContent: t(s.action === 'publish' ? 'stepOn' : 'stepOff', { name: s.name }) }));
   // A snapshot is required for bigger changes (more than 1 workflow), optional for a single switch.
   const optional = snapshotOptional || plan.steps.length === 1;
@@ -894,7 +896,7 @@ async function execute(steps, items, runBtn, out, dlg, chk, onStepDone) {
       items[i].className = 'fail';
       items[i].textContent += ' ✗ ' + e.message;
       out.className = 'err';
-      out.textContent = t('stoppedStep', { i: i + 1, n: steps.length });
+      out.textContent = i === 0 ? t('stoppedFirst', { n: steps.length }) : t('stoppedStep', { i: i + 1, n: steps.length });
       state.busy = false;
       await finish();
       dlg.append(el('button', { textContent: t('close'), onclick: () => { dlg.close(); load(); } }));

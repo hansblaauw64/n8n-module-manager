@@ -23,9 +23,9 @@ function walk(dir) {
     return d.isDirectory() ? walk(p) : [p];
   });
 }
-const files = walk(extDir)
-  .map((p) => ({ name: relative(extDir, p).split(sep).join('/'), path: p }))
-  .concat([{ name: 'LICENSE', path: join(root, 'LICENSE') }])
+const inExt = walk(extDir).map((p) => ({ name: relative(extDir, p).split(sep).join('/'), path: p }));
+// The repository's LICENSE goes along, unless extension/ already has its own (never two entries with one name).
+const files = (inExt.some((f) => f.name === 'LICENSE') ? inExt : inExt.concat([{ name: 'LICENSE', path: join(root, 'LICENSE') }]))
   .sort((a, b) => a.name.localeCompare(b.name));
 
 const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {

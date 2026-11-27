@@ -49,10 +49,22 @@ test('unpublish: callers first, warns about outside callers', () => {
   assert.ok(warnings.some((w) => w.includes('other')));
 });
 
-test('publish warns when callee outside module is unpublished', () => {
-  const list = [wf('1', 'a', false, [exec('2')], ['mod:x']), wf('2', 'b', false)];
-  const { warnings } = planAction('publish', ['1'], list, buildGraph(list));
-  assert.equal(warnings.length, 1);
+test('publish also publishes unpublished sub-workflows, sub-flows first', () => {
+  // n8n refuses to publish a workflow whose sub-workflow isn't published (docs/findings.md).
+  const list = [wf('1', 'a', false, [exec('2')], ['mod:x']), wf('2', 'b', false, [exec('3')]), wf('3', 'c', false), wf('4', 'd', true, [exec('3')])];
+  const { steps, warnings } = planAction('publish', ['1'], list, buildGraph(list));
+  assert.deepEqual(steps.map((s) => [s.id, s.action]), [['3', 'publish'], ['2', 'publish'], ['1', 'publish']]);
+  assert.equal(warnings.length, 2); // one note per added sub-workflow
+  assert.ok(warnings.some((w) => w.includes('"b"') && w.includes('"a"')));
+  assert.ok(warnings.some((w) => w.includes('"c"') && w.includes('"b"')));
+  // an already published sub-workflow is not added
+  const on = list.map((w) => (w.id === '2' || w.id === '3' ? { ...w, active: true } : w));
+  const p2 = planAction('publish', ['1'], on, buildGraph(on));
+  assert.deepEqual(p2.steps.map((s) => s.id), ['1']);
+  assert.equal(p2.warnings.length, 0);
+  // unpublish never adds anything
+  const act = list.map((w) => ({ ...w, active: true }));
+  assert.deepEqual(planAction('unpublish', ['1'], act, buildGraph(act)).steps.map((s) => s.id), ['1']);
 });
 
 test('cycles detected', () => {

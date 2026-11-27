@@ -6,6 +6,11 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+### Fixed
+- Switching on a workflow whose sub-workflow was off failed: n8n refuses with 400 "Please publish all referenced sub-workflows first". The plan now switches those sub-workflows on first (also indirectly called ones), with a note per sub-workflow; the snapshot includes them.
+- When the first step of a plan failed, the message said "the earlier steps were carried out". It now says nothing was changed.
+- `npm run pack` no longer puts two `LICENSE` files in the zip when `extension/` has its own copy.
+
 ## [0.3.1] - 2026-11-26
 
 The git history starts here: it was begun afresh at 0.3.1, so the versions below have no tag or commits.

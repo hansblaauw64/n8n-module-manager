@@ -162,6 +162,7 @@ export const MESSAGES = {
   prodAfter: [' om te bevestigen.', ' to confirm.'],
   planInstance: ['Instance: {name}{env}. Volgorde:', 'Instance: {name}{env}. Order:'],
   refreshTabs: [' Ververs daarna de geopende n8n-tabs van deze workflows', ' Then reload the open n8n tabs of these workflows'],
+  stoppedFirst: ['Gestopt bij stap 1/{n}. Er is niets gewijzigd.', 'Stopped at step 1/{n}. Nothing was changed.'],
   stoppedStep: ['Gestopt bij stap {i}/{n}. De eerdere stappen zijn doorgevoerd; gebruik Rollback met je snapshot om terug te gaan.', 'Stopped at step {i}/{n}. The earlier steps were carried out; use Rollback with your snapshot to go back.'],
   done: ['Klaar.', 'Done.'],
   rollbackTitle: ['Rollback uit snapshot {at}', 'Rollback from snapshot {at}'],
@@ -312,6 +313,7 @@ export const MESSAGES = {
   // ---- plans (lib/deps.js) ----
   'plan.cycle': ['Cyclus: {path}', 'Cycle: {path}'],
   'plan.calleeOff': ['"{caller}" roept "{callee}" aan, die niet gepubliceerd is', '"{caller}" calls "{callee}", which isn\'t published'],
+  'plan.calleeAdded': ['"{callee}" wordt ook aangezet: "{caller}" roept hem aan, en n8n publiceert een workflow pas als zijn subworkflows gepubliceerd zijn', '"{callee}" is switched on too: "{caller}" calls it, and n8n only publishes a workflow once its sub-workflows are published'],
   'plan.callerOn': ['"{caller}" (gepubliceerd) roept "{callee}" aan', '"{caller}" (published) calls "{callee}"'],
   'plan.manualOnly': ['"{name}" heeft alleen een handmatige trigger en kan niet gepubliceerd worden', '"{name}" only has a manual trigger and can\'t be published'],
 

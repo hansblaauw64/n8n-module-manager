@@ -71,7 +71,22 @@ export function orderSubflowsFirst(ids, graph) {
 export function planAction(action, memberIds, workflows, graph) {
   const byId = new Map(workflows.map((w) => [String(w.id), w]));
   const members = new Set(memberIds.map(String));
-  const { order, cycles } = orderSubflowsFirst([...members], graph);
+  // n8n refuses to publish a workflow that calls an unpublished sub-workflow (400 "Please publish all referenced
+  // sub-workflows first", docs/findings.md). So publishing also publishes the unpublished sub-workflows it calls,
+  // directly or indirectly. A manual-only one can't be published: it is left out with a warning below.
+  const added = new Map(); // sub-workflow id -> the first caller that needs it
+  if (action === 'publish') {
+    const walk = (id) => {
+      for (const c of graph.calls.get(id) || []) {
+        const callee = byId.get(c);
+        if (!callee || members.has(c) || added.has(c) || callee.active || isManualOnly(callee)) continue;
+        added.set(c, id);
+        walk(c);
+      }
+    };
+    for (const id of members) walk(id);
+  }
+  const { order, cycles } = orderSubflowsFirst([...members, ...added.keys()], graph);
   const warnings = cycles.map(
     (c) => t('plan.cycle', { path: c.map((id) => byId.get(id)?.name ?? id).join(' → ') }),
   );
@@ -85,9 +100,10 @@ export function planAction(action, memberIds, workflows, graph) {
     .map((id) => ({ id, name: byId.get(id).name, action }));
   const changing = new Set(steps.map((s) => s.id));
   const name = (id) => byId.get(id)?.name ?? id;
+  for (const [id, caller] of added) warnings.push(t('plan.calleeAdded', { caller: name(caller), callee: name(id) }));
 
   if (wantActive) {
-    for (const id of members) {
+    for (const id of [...members, ...added.keys()]) {
       for (const c of graph.calls.get(id) || []) {
         const callee = byId.get(c);
         if (callee && !callee.active && !changing.has(c) && !isManualOnly(callee)) {

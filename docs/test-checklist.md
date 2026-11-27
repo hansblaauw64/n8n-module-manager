@@ -47,6 +47,7 @@ Labels are quoted in Dutch (the default on a Dutch Chrome), with the English lab
 ## Modules and tags (careful: this changes real tags in n8n)
 - [ ] **+ Module** creates an empty card, and the tag `mod:<name>` then exists in n8n. A duplicate name is refused.
 - [ ] Drag a workflow to the empty card: after confirmation the tag is on it, and other tags remain.
+- [ ] Switch on a workflow whose subworkflow is off: the plan switches the subworkflow on first, with a note. Both end up on.
 - [ ] The "+ Module…" dropdown on a workflow without a module links it right away (if it doesn't call subworkflows).
 - [ ] Move a workflow that calls a subworkflow: the confirmation shows the subworkflow with a checkbox. After confirming, both have the new module tag and their other tags are kept. A shared subworkflow is unchecked and shows the warning.
 - [ ] Dragging to "Zonder module" removes the module tag.
