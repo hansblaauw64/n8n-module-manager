@@ -6,6 +6,9 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+### Added
+- The executions chart shows the average duration: a switch **Aantal / Gem. duur** turns the bars into the average duration per hour, the caption gives the overall average, and each bar's tooltip its own. Running executions (no duration yet) are left out of the averages.
+
 ## [0.5.0] - 2026-11-27
 
 ### Added

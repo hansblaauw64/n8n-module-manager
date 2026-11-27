@@ -2,7 +2,7 @@
 // newest first, 20 at a time, with a filter on status. Data comes from GET /executions (no execution data).
 import { isManualOnly } from '../lib/triggers.js';
 import { t, locale } from '../lib/i18n.js';
-import { executionStatus, executionKind, modeLabel, durationText, countExecutions, executionUrl, relativeTime, executionError, executionsByHour, executionHour } from '../lib/executions.js';
+import { executionStatus, executionKind, modeLabel, durationText, countExecutions, executionUrl, relativeTime, executionError, executionsByHour, executionHour, averageDurationMs, formatDuration } from '../lib/executions.js';
 
 const PAGE = 20;
 let loadToken = 0; // a newer render cancels the results of an older one
@@ -128,6 +128,7 @@ export function renderWorkflowView(root, ctx) {
   };
 
   let hourFilter = null; // a clicked bar in the chart: only executions that started in that hour
+  let chartMode = 'count'; // 'count': number of executions per hour; 'duration': their average duration
 
   /** Bars per hour of the day, like the day agenda: when the loaded executions started, failed ones in red. */
   const drawChart = () => {
@@ -135,12 +136,27 @@ export function renderWorkflowView(root, ctx) {
     chart.hidden = !execs.length;
     if (!execs.length) return;
     const byHour = executionsByHour(execs);
-    const max = Math.max(1, ...byHour.map((x) => x.all));
+    const byDuration = chartMode === 'duration';
+    const max = byDuration ? Math.max(1, ...byHour.map((x) => x.avgMs || 0)) : Math.max(1, ...byHour.map((x) => x.all));
     const hh = (hr) => String(hr).padStart(2, '0');
+    const avg = (ms) => (ms == null ? t('exAvgNone') : formatDuration(ms));
+
+    // Switch: number of executions per hour, or their average duration.
+    const modes = h('div', { className: 'ex-chart-modes', role: 'group', 'aria-label': t('exChartShow') });
+    for (const [key, label] of [['count', t('exChartCount')], ['duration', t('exChartDuration')]]) {
+      const b = h('button', { type: 'button', className: 'ag-day' + (chartMode === key ? ' sel' : ''), textContent: label });
+      b.setAttribute('aria-pressed', String(chartMode === key));
+      b.onclick = () => { chartMode = key; draw(); };
+      modes.append(b);
+    }
     const caption = h('div', { className: 'ex-chart-cap muted' });
-    if (hourFilter == null) caption.append(t('exByHour'));
-    else {
-      caption.append(t('exHourOnly', { from: `${hh(hourFilter)}:00`, to: `${hh(hourFilter)}:59` }), ' ');
+    if (hourFilter == null) {
+      caption.append(byDuration ? t('exByHourDuration') : t('exByHour'), ' · ',
+        h('strong', { textContent: t('exAvgAll', { avg: avg(averageDurationMs(execs)) }) }));
+    } else {
+      const x = byHour[hourFilter];
+      caption.append(t('exHourOnly', { from: `${hh(hourFilter)}:00`, to: `${hh(hourFilter)}:59` }), ' ',
+        h('strong', { textContent: t('exAvgAll', { avg: avg(x.avgMs) }) }), ' · ');
       caption.append(h('button', { type: 'button', className: 'linkish', textContent: t('exHourClear'), onclick: () => { hourFilter = null; draw(); } }));
     }
     const bars = h('div', { className: 'ag-heat ex-heat' + (hourFilter != null ? ' picked' : ''), role: 'group' });
@@ -149,18 +165,25 @@ export function renderWorkflowView(root, ctx) {
       const cell = h('button', {
         type: 'button',
         className: 'ag-cell' + (x.all ? '' : ' empty') + (hourFilter === hr ? ' sel' : ''),
-        title: t('exHourCell', { from: `${hh(hr)}:00`, to: `${hh(hr)}:59`, n: x.all, fail: x.fail }),
+        title: t('exHourCell', { from: `${hh(hr)}:00`, to: `${hh(hr)}:59`, n: x.all, fail: x.fail }) + (x.all ? ' · ' + t('exAvgAll', { avg: avg(x.avgMs) }) : ''),
       });
       cell.setAttribute('aria-pressed', String(hourFilter === hr));
-      // Stacked from the bottom: succeeded, running/other, failed.
-      const stack = h('span', { className: 'ex-stack', style: `height:${x.all ? Math.max(10, Math.round((x.all / max) * 100)) : 0}%` });
-      for (const [cls, n] of [['ok', x.ok], ['busy', x.running + x.other], ['fail', x.fail]]) if (n) stack.append(h('span', { className: 'ex-seg ' + cls, style: `flex-grow:${n}` }));
+      const value = byDuration ? x.avgMs || 0 : x.all;
+      const stack = h('span', { className: 'ex-stack', style: `height:${value ? Math.max(10, Math.round((value / max) * 100)) : x.all ? 3 : 0}%` });
+      if (byDuration) {
+        // One bar: the average duration; a bar with failures gets a red cap.
+        if (x.avgMs != null) stack.append(h('span', { className: 'ex-seg dur', style: 'flex-grow:1' }));
+        if (x.fail && x.avgMs != null) stack.append(h('span', { className: 'ex-seg fail cap' }));
+      } else {
+        // Stacked from the bottom: succeeded, running/other, failed.
+        for (const [cls, n] of [['ok', x.ok], ['busy', x.running + x.other], ['fail', x.fail]]) if (n) stack.append(h('span', { className: 'ex-seg ' + cls, style: `flex-grow:${n}` }));
+      }
       cell.append(x.all ? stack : h('span', { className: 'ag-bar' }), h('span', { className: 'ag-hr', textContent: hr % 3 === 0 ? hh(hr) : '' }));
       if (x.all) cell.onclick = () => { hourFilter = hourFilter === hr ? null : hr; draw(); };
       else cell.disabled = true;
       bars.append(cell);
     });
-    chart.append(caption, bars);
+    chart.append(modes, caption, bars);
   };
 
   const draw = () => {

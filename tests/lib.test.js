@@ -627,9 +627,10 @@ test('checkSnapshotInstance: only a snapshot of this instance', async () => {
 test('executionsByHour: counts per local start hour, split by outcome', async () => {
   const { executionsByHour, executionHour } = await import('../extension/src/lib/executions.js');
   const at = (h, m = 0) => new Date(2026, 10, 27, h, m).toISOString(); // local time, so the test works in any time zone
+  const stop = (iso, sec) => new Date(new Date(iso).getTime() + sec * 1000).toISOString();
   const execs = [
-    { status: 'success', startedAt: at(14, 1) },
-    { status: 'error', startedAt: at(14, 59) },
+    { status: 'success', startedAt: at(14, 1), stoppedAt: stop(at(14, 1), 2) },
+    { status: 'error', startedAt: at(14, 59), stoppedAt: stop(at(14, 59), 6) },
     { status: 'running', startedAt: at(9) },
     { status: 'success', startedAt: at(0) },
     { status: 'success', startedAt: 'not a date' },
@@ -637,12 +638,17 @@ test('executionsByHour: counts per local start hour, split by outcome', async ()
   ];
   const hours = executionsByHour(execs);
   assert.equal(hours.length, 24);
-  assert.deepEqual(hours[14], { all: 2, ok: 1, fail: 1, running: 0, other: 0 });
-  assert.deepEqual(hours[9], { all: 1, ok: 0, fail: 0, running: 1, other: 0 });
+  assert.deepEqual(hours[14], { all: 2, ok: 1, fail: 1, running: 0, other: 0, timed: 2, avgMs: 4000 });
+  assert.deepEqual(hours[9], { all: 1, ok: 0, fail: 0, running: 1, other: 0, timed: 0, avgMs: null }); // running: no duration yet
   assert.equal(hours[0].ok, 1);
   assert.equal(hours.reduce((n, h) => n + h.all, 0), 4); // the two without a valid start time are left out
   assert.equal(executionHour({ startedAt: at(23, 30) }), 23);
   assert.equal(executionHour({}), null);
+  const { averageDurationMs, formatDuration } = await import('../extension/src/lib/executions.js');
+  assert.equal(averageDurationMs(execs), 4000);
+  assert.equal(averageDurationMs([{ status: 'running', startedAt: at(1) }]), null);
+  assert.match(formatDuration(4000), /^4[.,]0 s$/);
+  assert.equal(formatDuration(null), '');
 });
 
 test('messages: no key is defined twice (a later duplicate silently wins)', async () => {

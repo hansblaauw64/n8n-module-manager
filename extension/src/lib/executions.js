@@ -63,11 +63,22 @@ const MODES = new Set(['trigger', 'webhook', 'manual', 'retry', 'integrated', 'e
 export const modeLabel = (mode) => (MODES.has(mode) ? t(`mode.${mode}`) : mode ? String(mode) : '');
 
 /** Duration between two ISO times: "0,4 s", "12 s", "3 min 5 s", "1 u 2 min" (English: "0.4 s", "1 h 2 min"). Empty if unknown. */
-export function durationText(startIso, stopIso) {
+/** Milliseconds between start and stop, or null when one is missing or invalid (e.g. still running). */
+export function durationMs(startIso, stopIso) {
   const a = new Date(startIso).getTime();
   const b = new Date(stopIso).getTime();
-  if (!startIso || !stopIso || Number.isNaN(a) || Number.isNaN(b) || b < a) return '';
-  const ms = b - a;
+  if (!startIso || !stopIso || Number.isNaN(a) || Number.isNaN(b) || b < a) return null;
+  return b - a;
+}
+
+export function durationText(startIso, stopIso) {
+  const ms = durationMs(startIso, stopIso);
+  return ms == null ? '' : formatDuration(ms);
+}
+
+/** "3,1 s", "42 s", "2 min 5 s", "1 u 10 min", … for a number of milliseconds. */
+export function formatDuration(ms) {
+  if (ms == null || Number.isNaN(ms) || ms < 0) return '';
   if (ms < 10000) return t('dur.seconds', { n: (Math.round(ms / 100) / 10).toFixed(1).replace('.', t('decimal')) });
   const sec = Math.round(ms / 1000);
   if (sec < 60) return t('dur.seconds', { n: sec });
@@ -93,18 +104,34 @@ export function executionHour(e) {
 }
 
 /**
- * Executions per hour of the day (local time) they started: 24 × { all, ok, fail, running, other }.
+ * Executions per hour of the day (local time) they started: 24 × { all, ok, fail, running, other, timed, avgMs }.
+ * `timed` = executions with a duration (finished: start and stop time), `avgMs` = their average duration or null.
  * For the chart above the executions list; an execution without a start time is left out.
  */
 export function executionsByHour(execs) {
-  const hours = Array.from({ length: 24 }, () => ({ all: 0, ok: 0, fail: 0, running: 0, other: 0 }));
+  const hours = Array.from({ length: 24 }, () => ({ all: 0, ok: 0, fail: 0, running: 0, other: 0, timed: 0, avgMs: null }));
+  const sums = Array(24).fill(0);
   for (const e of execs || []) {
     const hr = executionHour(e);
     if (hr == null) continue;
     hours[hr].all++;
     hours[hr][executionKind(e)]++;
+    const ms = durationMs(e.startedAt, e.stoppedAt);
+    if (ms != null) { hours[hr].timed++; sums[hr] += ms; }
   }
+  hours.forEach((h, i) => { if (h.timed) h.avgMs = sums[i] / h.timed; });
   return hours;
+}
+
+/** Average duration of the executions that have one (finished), in ms, or null. */
+export function averageDurationMs(execs) {
+  let n = 0;
+  let sum = 0;
+  for (const e of execs || []) {
+    const ms = durationMs(e.startedAt, e.stoppedAt);
+    if (ms != null) { n++; sum += ms; }
+  }
+  return n ? sum / n : null;
 }
 
 /** Link to an execution in the n8n editor: <base>/workflow/<workflowId>/executions/<executionId>. */

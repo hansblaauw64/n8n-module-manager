@@ -75,6 +75,10 @@ button.ag-cell:hover:not(:disabled) { background: var(--color-brand-pale); }
 .ex-seg.ok { background: var(--color-brand-light); }
 .ex-seg.busy { background: var(--color-text-light); }
 .ex-seg.fail { background: var(--color-error); }
+.ex-seg.dur { background: var(--color-brand); }
+.ex-seg.cap { flex: 0 0 3px; }
+.ex-chart-modes { display: flex; gap: 6px; margin-bottom: 6px; }
+.ex-chart-cap strong { color: var(--color-text); font-weight: 600; }
 .ex-heat.picked .ag-cell:not(.sel) .ex-stack { opacity: 0.35; }
 .ag-cell.sel { background: var(--color-brand-pale); }
 button.linkish { border: 0; background: none; padding: 0; color: var(--color-brand); font: inherit; text-decoration: underline; cursor: pointer; }
