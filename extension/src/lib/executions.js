@@ -86,6 +86,27 @@ export function countExecutions(execs) {
   return c;
 }
 
+/** Local hour of the day (0–23) an execution started, or null without a valid start time. */
+export function executionHour(e) {
+  const d = new Date(e?.startedAt);
+  return Number.isNaN(d.getTime()) ? null : d.getHours();
+}
+
+/**
+ * Executions per hour of the day (local time) they started: 24 × { all, ok, fail, running, other }.
+ * For the chart above the executions list; an execution without a start time is left out.
+ */
+export function executionsByHour(execs) {
+  const hours = Array.from({ length: 24 }, () => ({ all: 0, ok: 0, fail: 0, running: 0, other: 0 }));
+  for (const e of execs || []) {
+    const hr = executionHour(e);
+    if (hr == null) continue;
+    hours[hr].all++;
+    hours[hr][executionKind(e)]++;
+  }
+  return hours;
+}
+
 /** Link to an execution in the n8n editor: <base>/workflow/<workflowId>/executions/<executionId>. */
 export const executionUrl = (base, workflowId, executionId) =>
   `${String(base).replace(/\/+$/, '')}/workflow/${encodeURIComponent(workflowId)}/executions/${encodeURIComponent(executionId)}`;

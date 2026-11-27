@@ -6,6 +6,10 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+### Added
+- `dist/` is now in the repository, with the zip of the current version (`npm run pack` removes older zips there). It holds only the extension's files and the LICENSE; checked for keys and instance details.
+- The executions of a workflow get a chart at the top, like the day agenda: bars per hour of the day showing when the loaded executions started, with failed ones in red. Click a bar to show only that hour; "Show all hours" clears it. It covers what is loaded (20 at a time, more with **Meer laden**).
+
 ## [0.4.0] - 2026-11-27
 
 ### Added

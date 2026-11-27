@@ -108,7 +108,7 @@ To release:
    git push origin main --tags
    ```
 
-4. Run `npm run pack` and, optionally, create a GitHub release from the tag with `dist/n8n-module-manager-X.Y.Z.zip` attached and the changelog entry as its notes. The script refuses to pack when the two versions differ.
+4. Run `npm run pack` before the release commit, so `dist/` holds the new zip (the script removes the previous one). Optionally, create a GitHub release from the tag with `dist/n8n-module-manager-X.Y.Z.zip` attached and the changelog entry as its notes. The script refuses to pack when the two versions differ.
 
 ## Pull requests
 

@@ -10,7 +10,7 @@ Want to fork the extension, rebrand it or contribute? See [CONTRIBUTING.md](CONT
 
 ## Installation
 1. Get the extension, in one of two ways:
-   - **From a zip:** `npm run pack` makes `dist/n8n-module-manager-<version>.zip` (or take the zip from a GitHub release). Unzip it to a folder you keep, e.g. `Documents\n8n-module-manager`.
+   - **From a zip:** take `dist/n8n-module-manager-<version>.zip` from the repository (it holds the zip of the current version; older ones are in the release tags), or make it yourself with `npm run pack`. Unzip it to a folder you keep, e.g. `Documents\n8n-module-manager`.
    - **From the repository:** use the `extension/` folder itself.
 
    Open `chrome://extensions`, switch on **Developer mode**, and drag that folder onto the page (or click **Load unpacked** and select it). It's the folder that contains `manifest.json`.
@@ -69,6 +69,7 @@ On a workflow page, two tabs at the top switch between **Deze workflow** and **A
   - the execution number; click it to open that execution in n8n (where it opens is a preference, see Settings);
   - how long ago it started, how long it took, how it was started (trigger, webhook, handmatig = manual, subworkflow, …) and the exact start time.
 - **Error details** of a failed execution: click **Foutmelding** (Error) under it. The panel then fetches that one execution with its data and shows the error message, the node where it went wrong, the HTTP status (for API errors), the description (often the response of the called service) and, folded away, the stack trace. **Kopieer foutmelding** (Copy error) puts it all on the clipboard. The data is only fetched when you open the section, once per execution, and only the error is kept. Request details (`context`) are never shown, because they can contain credentials.
+- **Chart by hour:** at the top, bars per hour of the day show when the loaded executions started, like the day agenda; failed ones are red at the top of a bar. Click a bar to see only that hour (**Alle uren tonen** shows all again). It covers what is loaded, so **Meer laden** adds to it.
 - **Summary and filter:** a line counts the loaded executions per status and says when the last failure was. The buttons **Alle**, **Mislukt**, **Geslaagd** (and **Bezig**, in progress, when there are any) filter the loaded list.
 - **A new workflow** (`/workflow/new`) has no executions yet; the panel says to save it first.
 - **A workflow that isn't in the list** (for example archived, or one the key has no access to) still shows its executions, with its id as the name.

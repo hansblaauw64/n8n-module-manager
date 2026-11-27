@@ -1,7 +1,7 @@
 // Packs the extension into dist/n8n-module-manager-<version>.zip, with manifest.json at the root of the zip.
 // That zip is what you share, upload to the Chrome Web Store, or (unzipped) load in chrome://extensions.
 // No dependencies: a small zip writer on top of node:zlib.
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { deflateRawSync } from 'node:zlib';
 
@@ -97,5 +97,7 @@ end.writeUInt32LE(offset, 16);
 const outDir = join(root, 'dist');
 mkdirSync(outDir, { recursive: true });
 const out = join(outDir, `n8n-module-manager-${manifest.version}.zip`);
+// dist/ is in git: keep only the zip of the current version there (older ones stay in the release tags).
+for (const f of readdirSync(outDir)) if (/^n8n-module-manager-.*\.zip$/.test(f) && join(outDir, f) !== out) rmSync(join(outDir, f));
 writeFileSync(out, Buffer.concat([...locals, ...centrals, end]));
 console.log(`${relative(root, out)}: ${files.length} files, ${(statSync(out).size / 1024).toFixed(0)} KB`);

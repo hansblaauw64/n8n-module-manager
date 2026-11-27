@@ -2,7 +2,7 @@
 // newest first, 20 at a time, with a filter on status. Data comes from GET /executions (no execution data).
 import { isManualOnly } from '../lib/triggers.js';
 import { t, locale } from '../lib/i18n.js';
-import { executionStatus, executionKind, modeLabel, durationText, countExecutions, executionUrl, relativeTime, executionError } from '../lib/executions.js';
+import { executionStatus, executionKind, modeLabel, durationText, countExecutions, executionUrl, relativeTime, executionError, executionsByHour, executionHour } from '../lib/executions.js';
 
 const PAGE = 20;
 let loadToken = 0; // a newer render cancels the results of an older one
@@ -55,10 +55,11 @@ export function renderWorkflowView(root, ctx) {
       ...mods.map((m) => h('span', { className: 'chip', textContent: m })),
       w ? null : h('span', { className: 'muted', textContent: t('wfNotInList') })));
   const summary = h('p', { className: 'muted ex-summary', textContent: t('exLoading') });
+  const chart = h('div', { className: 'ex-chart' });
   const filters = h('div', { className: 'ex-filters', role: 'group', 'aria-label': t('exFilter') });
   const list = h('ul', { className: 'ex-list' });
   const more = h('button', { type: 'button', className: 'ex-more', textContent: t('exMore'), hidden: true });
-  const box = h('div', { className: 'card col' }, h('div', { className: 'eyebrow' }, h('span', { textContent: t('executions') })), summary, filters, list, more);
+  const box = h('div', { className: 'card col' }, h('div', { className: 'eyebrow' }, h('span', { textContent: t('executions') })), summary, chart, filters, list, more);
   root.append(head, box);
 
   let execs = [];
@@ -126,9 +127,47 @@ export function renderWorkflowView(root, ctx) {
       ...(st.cls === 'fail' ? [errorSection(e)] : []));
   };
 
+  let hourFilter = null; // a clicked bar in the chart: only executions that started in that hour
+
+  /** Bars per hour of the day, like the day agenda: when the loaded executions started, failed ones in red. */
+  const drawChart = () => {
+    chart.textContent = '';
+    chart.hidden = !execs.length;
+    if (!execs.length) return;
+    const byHour = executionsByHour(execs);
+    const max = Math.max(1, ...byHour.map((x) => x.all));
+    const hh = (hr) => String(hr).padStart(2, '0');
+    const caption = h('div', { className: 'ex-chart-cap muted' });
+    if (hourFilter == null) caption.append(t('exByHour'));
+    else {
+      caption.append(t('exHourOnly', { from: `${hh(hourFilter)}:00`, to: `${hh(hourFilter)}:59` }), ' ');
+      caption.append(h('button', { type: 'button', className: 'linkish', textContent: t('exHourClear'), onclick: () => { hourFilter = null; draw(); } }));
+    }
+    const bars = h('div', { className: 'ag-heat ex-heat' + (hourFilter != null ? ' picked' : ''), role: 'group' });
+    bars.setAttribute('aria-label', t('exByHourAria'));
+    byHour.forEach((x, hr) => {
+      const cell = h('button', {
+        type: 'button',
+        className: 'ag-cell' + (x.all ? '' : ' empty') + (hourFilter === hr ? ' sel' : ''),
+        title: t('exHourCell', { from: `${hh(hr)}:00`, to: `${hh(hr)}:59`, n: x.all, fail: x.fail }),
+      });
+      cell.setAttribute('aria-pressed', String(hourFilter === hr));
+      // Stacked from the bottom: succeeded, running/other, failed.
+      const stack = h('span', { className: 'ex-stack', style: `height:${x.all ? Math.max(10, Math.round((x.all / max) * 100)) : 0}%` });
+      for (const [cls, n] of [['ok', x.ok], ['busy', x.running + x.other], ['fail', x.fail]]) if (n) stack.append(h('span', { className: 'ex-seg ' + cls, style: `flex-grow:${n}` }));
+      cell.append(x.all ? stack : h('span', { className: 'ag-bar' }), h('span', { className: 'ag-hr', textContent: hr % 3 === 0 ? hh(hr) : '' }));
+      if (x.all) cell.onclick = () => { hourFilter = hourFilter === hr ? null : hr; draw(); };
+      else cell.disabled = true;
+      bars.append(cell);
+    });
+    chart.append(caption, bars);
+  };
+
   const draw = () => {
     const c = countExecutions(execs);
-    const shown = filter === 'all' ? execs : execs.filter((e) => executionKind(e) === filter);
+    const shown = (filter === 'all' ? execs : execs.filter((e) => executionKind(e) === filter))
+      .filter((e) => hourFilter == null || executionHour(e) === hourFilter);
+    drawChart();
     list.textContent = '';
     for (const e of shown) list.append(row(e));
     if (!execs.length) list.append(h('li', { className: 'muted empty', textContent: t('exNone') }));

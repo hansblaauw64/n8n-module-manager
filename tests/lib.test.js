@@ -624,6 +624,27 @@ test('checkSnapshotInstance: only a snapshot of this instance', async () => {
   assert.throws(() => checkSnapshotInstance({ ...snap, instance: 'https://n8n.example.com/sub' }, 'https://n8n.example.com'));
 });
 
+test('executionsByHour: counts per local start hour, split by outcome', async () => {
+  const { executionsByHour, executionHour } = await import('../extension/src/lib/executions.js');
+  const at = (h, m = 0) => new Date(2026, 10, 27, h, m).toISOString(); // local time, so the test works in any time zone
+  const execs = [
+    { status: 'success', startedAt: at(14, 1) },
+    { status: 'error', startedAt: at(14, 59) },
+    { status: 'running', startedAt: at(9) },
+    { status: 'success', startedAt: at(0) },
+    { status: 'success', startedAt: 'not a date' },
+    { status: 'success' },
+  ];
+  const hours = executionsByHour(execs);
+  assert.equal(hours.length, 24);
+  assert.deepEqual(hours[14], { all: 2, ok: 1, fail: 1, running: 0, other: 0 });
+  assert.deepEqual(hours[9], { all: 1, ok: 0, fail: 0, running: 1, other: 0 });
+  assert.equal(hours[0].ok, 1);
+  assert.equal(hours.reduce((n, h) => n + h.all, 0), 4); // the two without a valid start time are left out
+  assert.equal(executionHour({ startedAt: at(23, 30) }), 23);
+  assert.equal(executionHour({}), null);
+});
+
 test('messages: no key is defined twice (a later duplicate silently wins)', async () => {
   const { readFileSync } = await import('node:fs');
   const src = readFileSync(new URL('../extension/src/lib/messages.js', import.meta.url), 'utf8');

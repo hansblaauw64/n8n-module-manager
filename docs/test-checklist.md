@@ -62,6 +62,7 @@ Labels are quoted in Dutch (the default on a Dutch Chrome), with the English lab
 - [ ] Cancel sends nothing. After confirming, the workflow is gone from the panel and from n8n.
 
 ## This workflow (executions)
+- [ ] Above the list, a chart with bars per hour shows when the loaded executions started; failed ones are red at the top of a bar. Clicking a bar shows only that hour; "Alle uren tonen" shows all again. "Meer laden" updates the chart.
 - [ ] Open a workflow in n8n: the panel shows **Deze workflow** with the right name, Aan/Uit and module, and the executions match the list in n8n (Executions tab of the workflow).
 - [ ] A failed execution is red; **Mislukt** shows only the failed ones; **Alle** shows everything again.
 - [ ] **Meer laden** loads older executions (on a workflow with more than 20), then disappears when there are no more.
