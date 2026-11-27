@@ -6,6 +6,8 @@ Lines starting with **Fork note** need action in forks; see [CONTRIBUTING.md](CO
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-27
+
 ### Added
 - The executions chart shows the average duration: a switch **Aantal / Gem. duur** turns the bars into the average duration per hour, the caption gives the overall average, and each bar's tooltip its own. Running executions (no duration yet) are left out of the averages.
 
@@ -91,7 +93,8 @@ First version:
 - Multiple instances with environment labels and an extra confirmation step for Productie.
 - https-only instances, a bundled font, and a tips footer from an RSS feed.
 
-[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/hansblaauw64/n8n-module-manager/compare/v0.3.1...v0.3.2

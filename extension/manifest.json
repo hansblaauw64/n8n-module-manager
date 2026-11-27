@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "things.io Modules",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Publiceer of unpubliceer n8n-workflows per module (tag mod:<naam>) vanuit het zijpaneel.",
   "minimum_chrome_version": "116",
   "permissions": [
